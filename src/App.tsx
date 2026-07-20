@@ -4,8 +4,11 @@ import { Cards } from './components/Cards'
 import { Challenge } from './components/Challenge'
 import { Drill } from './components/Drill'
 import { Learn } from './components/Learn'
+import { Placement } from './components/Placement'
 import { ProgressView } from './components/ProgressView'
+import { SettingsView } from './components/SettingsView'
 import { Tour, TOUR_KEY } from './components/Tour'
+import { suggest } from './lib/coach'
 import {
   dueCount,
   importProgress,
@@ -16,8 +19,9 @@ import {
   type Grade,
   type ProgressState,
 } from './store/progress'
+import { loadSettings, saveSettings, type Settings } from './store/settings'
 
-type View = 'learn' | 'drill' | 'challenge' | 'cards' | 'progress' | 'about'
+type View = 'learn' | 'drill' | 'challenge' | 'cards' | 'progress' | 'about' | 'settings'
 type Theme = 'light' | 'dark' | null
 
 const THEME_KEY = 'trig-trainer-theme'
@@ -51,9 +55,11 @@ const VIEWS: { id: View; label: string }[] = [
 export default function App() {
   const [view, setView] = useState<View>('learn')
   const [progress, setProgress] = useState<ProgressState>(() => loadProgress())
+  const [settings, setSettings] = useState<Settings>(() => loadSettings())
   const [theme, setTheme] = useState<Theme>(() => initTheme())
-  const [scope, setScope] = useState<string | null>(null)
+  const [scope, setScope] = useState<string[] | null>(() => loadSettings().scope)
   const [showTour, setShowTour] = useState<boolean>(() => tourPending())
+  const [coachDismissed, setCoachDismissed] = useState(false)
 
   useEffect(() => {
     const root = document.documentElement
@@ -76,6 +82,19 @@ export default function App() {
     setTheme(dark ? 'light' : 'dark')
   }
 
+  const updateSettings = (next: Settings) => {
+    setSettings(next)
+    saveSettings(next)
+    if (next.scope !== settings.scope) setScope(next.scope)
+  }
+
+  const updateScope = (next: string[] | null) => {
+    setScope(next)
+    const merged = { ...settings, scope: next }
+    setSettings(merged)
+    saveSettings(merged)
+  }
+
   const onAnswer = (id: string, correct: boolean) =>
     setProgress((p) => recordDrill(p, id, correct))
   const onGrade = (id: string, grade: Grade) => setProgress((p) => recordGrade(p, id, grade))
@@ -86,6 +105,9 @@ export default function App() {
   }
 
   const due = dueCount(progress)
+  const coach = suggest(progress)
+  const showCoach =
+    !coachDismissed && !showTour && settings.placementDone && view !== coach.go && view !== 'settings' && view !== 'about'
 
   return (
     <div className="app">
@@ -110,6 +132,15 @@ export default function App() {
           ))}
         </nav>
         <button
+          className={view === 'settings' ? 'btn theme-toggle btn-primary' : 'btn theme-toggle'}
+          data-tour="settings"
+          onClick={() => setView('settings')}
+          aria-label="Settings"
+          title="Settings"
+        >
+          ⚙
+        </button>
+        <button
           className="btn theme-toggle"
           onClick={() => setShowTour(true)}
           aria-label="Replay interface tour"
@@ -122,22 +153,67 @@ export default function App() {
         </button>
       </header>
 
+      {showCoach ? (
+        <div className="coach-bar">
+          <span className="coach-text">{coach.text}</span>
+          <button
+            className="btn coach-go"
+            onClick={() => {
+              if (coach.scope !== undefined) updateScope(coach.scope)
+              setView(coach.go)
+            }}
+          >
+            {coach.goLabel}
+          </button>
+          <button
+            className="btn coach-dismiss"
+            onClick={() => setCoachDismissed(true)}
+            aria-label="Dismiss suggestion"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
+
       <main className="main">
         {view === 'learn' ? (
           <Learn
             progress={progress}
             onDrillFamily={(id) => {
-              setScope(id)
+              updateScope([id])
               setView('drill')
             }}
           />
         ) : null}
         {view === 'drill' ? (
-          <Drill progress={progress} scope={scope} onScope={setScope} onAnswer={onAnswer} />
+          <Drill
+            progress={progress}
+            settings={settings}
+            scope={scope}
+            onScope={updateScope}
+            onAnswer={onAnswer}
+          />
         ) : null}
-        {view === 'challenge' ? <Challenge progress={progress} onAnswer={onAnswer} /> : null}
-        {view === 'cards' ? <Cards progress={progress} scope={scope} onGrade={onGrade} /> : null}
+        {view === 'challenge' ? (
+          <Challenge
+            progress={progress}
+            settings={settings}
+            scope={scope}
+            onScope={updateScope}
+            onAnswer={onAnswer}
+          />
+        ) : null}
+        {view === 'cards' ? (
+          <Cards
+            progress={progress}
+            settings={settings}
+            scope={scope}
+            onScope={updateScope}
+            onGrade={onGrade}
+          />
+        ) : null}
         {view === 'about' ? <About /> : null}
+        {view === 'settings' ? <SettingsView settings={settings} onChange={updateSettings} /> : null}
         {view === 'progress' ? (
           <ProgressView
             progress={progress}
@@ -159,6 +235,9 @@ export default function App() {
             if (goLearn) setView('learn')
           }}
         />
+      ) : null}
+      {!showTour && !settings.placementDone ? (
+        <Placement settings={settings} onDone={updateSettings} />
       ) : null}
     </div>
   )

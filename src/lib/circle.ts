@@ -100,17 +100,18 @@ const SIN_COS_POOL = [
 ]
 const TAN_POOL = ['0', '\\tfrac{\\sqrt{3}}{3}', '-\\tfrac{\\sqrt{3}}{3}', '1', '-1', '\\sqrt{3}', '-\\sqrt{3}']
 
-export function makeCircleQuestion(excludeKey: string | null): CircleQuestion {
+export function makeCircleQuestion(excludeKey: string | null, optionCount = 4): CircleQuestion {
   let pool = CIRCLE_BANK
   if (excludeKey) pool = pool.filter((e) => e.key !== excludeKey)
   const entry = pool[Math.floor(Math.random() * pool.length)]
 
+  const wanted = Math.max(1, optionCount - 1)
   const valuePool = entry.fn === 'tan' ? TAN_POOL : SIN_COS_POOL
   const distractors: string[] = []
   const flipped = entry.valueTex.startsWith('-') ? entry.valueTex.slice(1) : `-${entry.valueTex}`
   if (entry.valueTex !== '0' && valuePool.includes(flipped)) distractors.push(flipped)
   for (const v of shuffle(valuePool)) {
-    if (distractors.length >= 3) break
+    if (distractors.length >= wanted) break
     if (v !== entry.valueTex && !distractors.includes(v)) distractors.push(v)
   }
 

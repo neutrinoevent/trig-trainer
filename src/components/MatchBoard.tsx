@@ -1,66 +1,72 @@
 import { useState } from 'react'
-import { ALL_IDENTITIES, type FlatIdentity } from '../data/identities'
-import { norm, shuffle } from '../lib/pick'
+import { boardTiles, pickBoardIdentities, type MatchTile } from '../lib/match'
+import type { ProgressState } from '../store/progress'
+import type { Settings } from '../store/settings'
 import { Tex } from './Tex'
 
 interface Props {
+  progress: ProgressState
+  settings: Settings
+  scope: string[] | null
   onAnswer: (id: string, correct: boolean) => void
 }
 
-interface Tile {
-  identId: string
-  kind: 'prompt' | 'answer'
-  tex: string
+const PAIR_CHOICES = [3, 4, 6]
+
+function defaultPairs(settings: Settings): number {
+  if (settings.level === 'beginner') return 3
+  if (settings.level === 'advanced') return 6
+  return 4
 }
 
-const PAIRS = 6
+interface Board {
+  tiles: MatchTile[]
+  pairTexById: Map<string, { prompt: string; answer: string; family: string }>
+}
 
-/**
- * Pick identities whose prompts and answers are short, tile-friendly, and
- * unambiguous on one board: no repeated prompt/answer forms, and no tile that
- * could truthfully pair with another identity's tile.
- */
-function pickBoard(): Tile[] {
-  const usedPrompts = new Set<string>()
-  const usedAnswers = new Set<string>()
-  const chosen: FlatIdentity[] = []
-  for (const ident of shuffle(ALL_IDENTITIES)) {
-    if (chosen.length >= PAIRS) break
-    if (ident.prompt.includes('\\text') || ident.answer.includes('\\text')) continue
-    if (ident.prompt.length + ident.answer.length > 88) continue
-    const p = norm(ident.prompt)
-    const a = norm(ident.answer)
-    if (usedPrompts.has(p) || usedAnswers.has(a)) continue
-    if (usedPrompts.has(a) || usedAnswers.has(p)) continue
-    usedPrompts.add(p)
-    usedAnswers.add(a)
-    chosen.push(ident)
+function makeBoard(
+  progress: ProgressState,
+  scope: string[] | null,
+  pairCount: number,
+  settings: Settings,
+): Board {
+  const identities = pickBoardIdentities(progress, scope, pairCount, settings.level)
+  return {
+    tiles: boardTiles(identities),
+    pairTexById: new Map(
+      identities.map((i) => [i.id, { prompt: i.prompt, answer: i.answer, family: i.familyName }]),
+    ),
   }
-  return shuffle(
-    chosen.flatMap((i): Tile[] => [
-      { identId: i.id, kind: 'prompt', tex: i.prompt },
-      { identId: i.id, kind: 'answer', tex: i.answer },
-    ]),
-  )
 }
 
-export function MatchBoard({ onAnswer }: Props) {
-  const [tiles, setTiles] = useState<Tile[]>(() => pickBoard())
+export function MatchBoard({ progress, settings, scope, onAnswer }: Props) {
+  const [pairCount, setPairCount] = useState<number>(() => defaultPairs(settings))
+  const [board, setBoard] = useState<Board>(() => makeBoard(progress, scope, defaultPairs(settings), settings))
+  const [studying, setStudying] = useState<boolean>(settings.level === 'beginner')
   const [selected, setSelected] = useState<number | null>(null)
   const [matched, setMatched] = useState<Set<string>>(() => new Set())
   const [missed, setMissed] = useState<Set<string>>(() => new Set())
   const [flash, setFlash] = useState<[number, number] | null>(null)
 
-  const newBoard = () => {
-    setTiles(pickBoard())
+  const totalPairs = board.pairTexById.size
+  const untouched = matched.size === 0 && missed.size === 0
+
+  const reset = (nextPairs: number) => {
+    setBoard(makeBoard(progress, scope, nextPairs, settings))
+    setStudying(settings.level === 'beginner')
     setSelected(null)
     setMatched(new Set())
     setMissed(new Set())
     setFlash(null)
   }
 
+  const changePairs = (n: number) => {
+    setPairCount(n)
+    reset(n)
+  }
+
   const click = (i: number) => {
-    const tile = tiles[i]
+    const tile = board.tiles[i]
     if (matched.has(tile.identId) || flash !== null) return
     if (selected === null) {
       setSelected(i)
@@ -70,7 +76,7 @@ export function MatchBoard({ onAnswer }: Props) {
       setSelected(null)
       return
     }
-    const prev = tiles[selected]
+    const prev = board.tiles[selected]
     if (prev.kind === tile.kind) {
       setSelected(i)
       return
@@ -92,7 +98,7 @@ export function MatchBoard({ onAnswer }: Props) {
     }
   }
 
-  const done = matched.size === PAIRS
+  const done = totalPairs > 0 && matched.size === totalPairs
 
   return (
     <div>
@@ -100,36 +106,78 @@ export function MatchBoard({ onAnswer }: Props) {
         Pair each left side with its identity. A pair matched with no misses counts as a correct
         answer for that identity; a fumbled pair counts as a miss.
       </p>
-      <div className="card">
-        <div className="match-grid">
-          {tiles.map((tile, i) => {
-            let cls = 'match-tile'
-            if (matched.has(tile.identId)) cls += ' match-done'
-            else if (selected === i) cls += ' match-selected'
-            else if (flash && (flash[0] === i || flash[1] === i)) cls += ' match-wrong'
-            return (
-              <button
-                key={`${tile.identId}-${tile.kind}`}
-                className={cls}
-                onClick={() => click(i)}
-                disabled={matched.has(tile.identId)}
-              >
-                <Tex tex={tile.tex} />
-              </button>
-            )
-          })}
-        </div>
-        {done ? (
-          <div className="actions match-actions">
-            <div className="feedback feedback-good match-summary">
-              Board cleared — {PAIRS - missed.size}/{PAIRS} clean.
-            </div>
-            <button className="btn btn-primary" onClick={newBoard}>
-              New board
-            </button>
-          </div>
+      <div className="mode-bar">
+        <span className="scope-label">Pairs</span>
+        {PAIR_CHOICES.map((n) => (
+          <button
+            key={n}
+            className={pairCount === n ? 'chip chip-active' : 'chip'}
+            onClick={() => changePairs(n)}
+          >
+            {n}
+          </button>
+        ))}
+        {!studying && untouched ? (
+          <button className="chip" onClick={() => setStudying(true)}>
+            Study pairs first
+          </button>
         ) : null}
       </div>
+
+      {studying ? (
+        <div className="card">
+          <p className="table-caption muted">
+            Read the pairs, then match them from memory — study first, retrieve second.
+          </p>
+          <ul className="identity-list">
+            {[...board.pairTexById.entries()].map(([id, pair]) => (
+              <li key={id} className="identity-row">
+                <div className="identity-tex">
+                  <Tex tex={`${pair.prompt} \\;=\\; ${pair.answer}`} />
+                </div>
+                <div className="identity-note muted">{pair.family}</div>
+              </li>
+            ))}
+          </ul>
+          <div className="actions">
+            <button className="btn btn-primary" onClick={() => setStudying(false)}>
+              Shuffle & match
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="card">
+          <div className={totalPairs <= 4 ? 'match-grid match-grid-small' : 'match-grid'}>
+            {board.tiles.map((tile, i) => {
+              let cls = 'match-tile'
+              if (matched.has(tile.identId)) cls += ' match-done'
+              else if (selected === i) cls += ' match-selected'
+              else if (flash && (flash[0] === i || flash[1] === i)) cls += ' match-wrong'
+              return (
+                <button
+                  key={`${tile.identId}-${tile.kind}`}
+                  className={cls}
+                  onClick={() => click(i)}
+                  disabled={matched.has(tile.identId)}
+                >
+                  <Tex tex={tile.tex} />
+                </button>
+              )
+            })}
+          </div>
+          {done ? (
+            <div className="actions match-actions">
+              <div className="feedback feedback-good match-summary">
+                Board cleared — {totalPairs - [...missed].filter((id) => matched.has(id)).length}/
+                {totalPairs} clean.
+              </div>
+              <button className="btn btn-primary" onClick={() => reset(pairCount)}>
+                New board
+              </button>
+            </div>
+          ) : null}
+        </div>
+      )}
     </div>
   )
 }

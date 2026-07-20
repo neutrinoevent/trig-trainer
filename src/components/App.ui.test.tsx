@@ -40,15 +40,23 @@ describe('app shell', () => {
     expect(document.querySelector('.tour-root')).toBeNull()
     expect(localStorage.getItem('trig-trainer-tour-done')).toBe('1')
 
-    // Learn: family library renders KaTeX
+    // placement follows the tour; picking a level closes it and stores settings
+    expect(document.querySelector('.placement-root')).toBeTruthy()
+    clickButton('Taking calculus')
+    expect(document.querySelector('.placement-root')).toBeNull()
+    expect(JSON.parse(localStorage.getItem('trig-trainer-settings-v1')!).level).toBe('intermediate')
+
+    // Learn: family library renders KaTeX with mastery tier dots
     expect(document.querySelector('.learn-nav')).toBeTruthy()
     expect(document.querySelectorAll('.identity-row').length).toBeGreaterThan(2)
     expect(document.querySelector('.katex')).toBeTruthy()
+    expect(document.querySelector('.tier-dot')).toBeTruthy()
 
-    // Drill: answer a question, progress is recorded
+    // Drill: a brand-new identity gets the scaffolded 2-choice question
     clickButton('Drill')
+    expect(document.querySelector('.scope-picker')).toBeTruthy()
     const options = [...document.querySelectorAll<HTMLButtonElement>('.option')]
-    expect(options.length).toBe(4)
+    expect(options.length).toBe(2)
     act(() => options[0].click())
     expect(document.querySelector('.feedback')).toBeTruthy()
     expect(JSON.parse(localStorage.getItem('trig-trainer-progress-v1')!).totalAttempts).toBe(1)
@@ -68,7 +76,7 @@ describe('app shell', () => {
       localStorage.getItem('trig-trainer-progress-v1')!,
     ).totalAttempts
     const rearranged = [...document.querySelectorAll<HTMLButtonElement>('.option')]
-    expect(rearranged.length).toBe(4)
+    expect(rearranged.length).toBeGreaterThanOrEqual(2)
     act(() => rearranged[0].click())
     expect(
       JSON.parse(localStorage.getItem('trig-trainer-progress-v1')!).totalAttempts,
@@ -80,7 +88,12 @@ describe('app shell', () => {
     clickButton('Unit circle')
     expect(document.querySelector('.circle-figure')).toBeTruthy()
     clickButton('Match')
-    expect(document.querySelectorAll('.match-tile').length).toBe(12)
+    expect(document.querySelectorAll('.match-tile').length).toBe(8) // 4-pair default at this level
+
+    // Settings: level tiles and per-setting chips render
+    clickButton('⚙')
+    expect(document.querySelectorAll('.level-tile').length).toBe(3)
+    expect(document.body.textContent).toContain('New cards per day')
 
     // About: attribution present
     clickButton('About')

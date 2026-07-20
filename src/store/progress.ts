@@ -167,9 +167,14 @@ export interface CardQueue {
 }
 
 /** Cards to study now: everything due, then unseen cards up to the daily cap. */
-export function cardQueue(state: ProgressState, scope: string | null): CardQueue {
+export function cardQueue(
+  state: ProgressState,
+  scope: string[] | null,
+  newPerDay: number = NEW_PER_DAY,
+): CardQueue {
   const now = Date.now()
-  const pool = scope ? ALL_IDENTITIES.filter((i) => i.familyId === scope) : ALL_IDENTITIES
+  const pool =
+    scope && scope.length > 0 ? ALL_IDENTITIES.filter((i) => scope.includes(i.familyId)) : ALL_IDENTITIES
   const due: { id: string; at: number }[] = []
   const fresh: string[] = []
   for (const ident of pool) {
@@ -179,7 +184,7 @@ export function cardQueue(state: ProgressState, scope: string | null): CardQueue
   }
   due.sort((a, b) => a.at - b.at)
   const usedToday = state.newDay === dayKey(now) ? state.newToday : 0
-  const freshRemaining = Math.max(0, NEW_PER_DAY - usedToday)
+  const freshRemaining = Math.max(0, newPerDay - usedToday)
   return { due: due.map((d) => d.id), fresh: fresh.slice(0, freshRemaining), freshRemaining }
 }
 

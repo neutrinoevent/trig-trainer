@@ -12,6 +12,16 @@ for (const ident of ALL_IDENTITIES) {
   answersByPrompt.set(key, set)
 }
 
+/** null (or empty) scope means everything. */
+export function inScope(familyId: string, scope: string[] | null): boolean {
+  return scope === null || scope.length === 0 || scope.includes(familyId)
+}
+
+export function scopedIdentities(scope: string[] | null): FlatIdentity[] {
+  const pool = ALL_IDENTITIES.filter((i) => inScope(i.familyId, scope))
+  return pool.length > 0 ? pool : ALL_IDENTITIES
+}
+
 export function shuffle<T>(arr: T[]): T[] {
   const out = arr.slice()
   for (let i = out.length - 1; i > 0; i--) {
@@ -33,10 +43,10 @@ function weight(state: ProgressState, ident: FlatIdentity): number {
 
 export function pickIdentity(
   state: ProgressState,
-  scope: string | null,
+  scope: string[] | null,
   excludeId: string | null,
 ): FlatIdentity {
-  let pool = scope ? ALL_IDENTITIES.filter((i) => i.familyId === scope) : ALL_IDENTITIES
+  let pool = scopedIdentities(scope)
   if (pool.length > 1 && excludeId) pool = pool.filter((i) => i.id !== excludeId)
   let total = 0
   const weights = pool.map((i) => {

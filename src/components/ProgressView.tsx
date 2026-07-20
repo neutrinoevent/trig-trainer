@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import { FAMILIES } from '../data/identities'
+import { familyTier, TIER_LABEL } from '../lib/mastery'
 import {
   dueCount,
   exportProgress,
@@ -80,6 +81,7 @@ export function ProgressView({ progress, onReset, onImport }: Props) {
           <thead>
             <tr>
               <th>Family</th>
+              <th>Level</th>
               <th className="num">Seen</th>
               <th className="num">Correct</th>
               <th>Mastery</th>
@@ -99,11 +101,15 @@ export function ProgressView({ progress, onReset, onImport }: Props) {
                 if (s.attempts > 0 || s.reps > 0) seen++
               }
               const mastery = f.identities.length ? ema / f.identities.length : 0
+              const tier = familyTier(progress, f)
               return (
                 <tr key={f.id}>
                   <td>
                     <div className="tech-name">{f.name}</div>
                     <div className="tech-blurb muted">{f.group}</div>
+                  </td>
+                  <td>
+                    <span className={`tier-chip tier-${tier}`}>{TIER_LABEL[tier]}</span>
                   </td>
                   <td className="num">
                     {seen}/{f.identities.length}

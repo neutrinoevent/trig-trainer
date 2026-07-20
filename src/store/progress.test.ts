@@ -73,7 +73,7 @@ describe('flashcard scheduling', () => {
 
   it('scopes the queue to a family', () => {
     const s = emptyProgress()
-    const q = cardQueue(s, ALL_IDENTITIES[0].familyId)
+    const q = cardQueue(s, [ALL_IDENTITIES[0].familyId])
     for (const id of q.fresh) {
       expect(ALL_IDENTITIES.find((i) => i.id === id)?.familyId).toBe(ALL_IDENTITIES[0].familyId)
     }

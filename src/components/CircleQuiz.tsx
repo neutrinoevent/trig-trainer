@@ -1,8 +1,15 @@
 import { useState } from 'react'
+import { FAMILY_BY_ID } from '../data/identities'
+import { resolveOptionCount } from '../lib/adapt'
 import { makeCircleQuestion, type CircleQuestion } from '../lib/circle'
+import { familyTier } from '../lib/mastery'
+import type { ProgressState } from '../store/progress'
+import type { Settings } from '../store/settings'
 import { QuizCard } from './QuizCard'
 
 interface Props {
+  progress: ProgressState
+  settings: Settings
   onAnswer: (id: string, correct: boolean) => void
 }
 
@@ -43,8 +50,13 @@ function CircleFigure({ theta }: { theta: number }) {
   )
 }
 
-export function CircleQuiz({ onAnswer }: Props) {
-  const [q, setQ] = useState<CircleQuestion>(() => makeCircleQuestion(null))
+export function CircleQuiz({ progress, settings, onAnswer }: Props) {
+  const [recent, setRecent] = useState<boolean[]>([])
+  const countFor = (r: boolean[]) =>
+    resolveOptionCount(settings, familyTier(progress, FAMILY_BY_ID.get('values')!), r)
+  const [q, setQ] = useState<CircleQuestion>(() => makeCircleQuestion(null, countFor([])))
+
+  const next = () => setQ(makeCircleQuestion(q.key, countFor(recent)))
 
   return (
     <div>
@@ -59,8 +71,11 @@ export function CircleQuiz({ onAnswer }: Props) {
         promptTex={`\\theta = ${q.angleTex},\\qquad \\${q.fn}\\theta \\;=\\; ?`}
         options={q.options}
         correctIndex={q.correctIndex}
-        onAnswer={(correct) => onAnswer(q.baseId, correct)}
-        onNext={() => setQ(makeCircleQuestion(q.key))}
+        onAnswer={(correct) => {
+          setRecent((r) => [...r, correct].slice(-20))
+          onAnswer(q.baseId, correct)
+        }}
+        onNext={next}
       />
     </div>
   )

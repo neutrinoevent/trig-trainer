@@ -10,6 +10,7 @@ export interface Curve {
   fn: (x: number) => number
   answer: string
   traps: [string, string, string]
+  familyId: string
   baseId?: string
   note?: string
 }
@@ -17,6 +18,7 @@ export interface Curve {
 export const CURVES: Curve[] = [
   {
     id: 'c-sin2x',
+    familyId: 'double',
     fn: (x) => Math.sin(2 * x),
     answer: r`\sin 2x`,
     traps: [r`\sin x`, r`2\sin x`, r`\cos 2x`],
@@ -25,6 +27,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-sinsq',
+    familyId: 'power',
     fn: (x) => Math.sin(x) ** 2,
     answer: r`\sin^2 x`,
     traps: [r`|\sin x|`, r`\cos^2 x`, r`\tfrac{1}{2}\sin 2x`],
@@ -33,6 +36,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-cossq',
+    familyId: 'power',
     fn: (x) => Math.cos(x) ** 2,
     answer: r`\cos^2 x`,
     traps: [r`\sin^2 x`, r`|\cos x|`, r`1 + \cos x`],
@@ -41,6 +45,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-abssin',
+    familyId: 'power',
     fn: (x) => Math.abs(Math.sin(x)),
     answer: r`|\sin x|`,
     traps: [r`\sin^2 x`, r`\sin x`, r`\tfrac{1}{2}(1 - \cos 2x)`],
@@ -48,6 +53,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-cos',
+    familyId: 'cofunction',
     fn: (x) => Math.cos(x),
     answer: r`\cos x`,
     traps: [r`\sin x`, r`\sin\left(x - \tfrac{\pi}{2}\right)`, r`-\cos x`],
@@ -56,6 +62,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-tan',
+    familyId: 'ratio',
     fn: (x) => Math.tan(x),
     answer: r`\tan x`,
     traps: [r`\cot x`, r`\tan 2x`, r`\sec x`],
@@ -64,6 +71,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-sec',
+    familyId: 'ratio',
     fn: (x) => 1 / Math.cos(x),
     answer: r`\sec x`,
     traps: [r`\csc x`, r`\tan x`, r`\cosh x`],
@@ -72,6 +80,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-sinpluscos',
+    familyId: 'linear',
     fn: (x) => Math.sin(x) + Math.cos(x),
     answer: r`\sqrt{2}\,\sin\left(x + \tfrac{\pi}{4}\right)`,
     traps: [
@@ -84,6 +93,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-powerform',
+    familyId: 'double',
     fn: (x) => 1 - 2 * Math.sin(x) ** 2,
     answer: r`1 - 2\sin^2 x`,
     traps: [r`1 + 2\sin^2 x`, r`2\sin^2 x - 1`, r`\sin 2x`],
@@ -92,6 +102,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-cosh',
+    familyId: 'hyper',
     fn: (x) => Math.cosh(x),
     answer: r`\cosh x`,
     traps: [r`x^2 + 1`, r`e^{x}`, r`\sinh x`],
@@ -100,6 +111,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-sinh',
+    familyId: 'hyper',
     fn: (x) => Math.sinh(x),
     answer: r`\sinh x`,
     traps: [r`x^3`, r`\tan x`, r`x`],
@@ -108,6 +120,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-tanh',
+    familyId: 'hyper',
     fn: (x) => Math.tanh(x),
     answer: r`\tanh x`,
     traps: [r`\arctan x`, r`x`, r`\sin x`],
@@ -116,6 +129,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-halfarg',
+    familyId: 'half',
     fn: (x) => Math.sin(x / 2),
     answer: r`\sin\tfrac{x}{2}`,
     traps: [r`\sin 2x`, r`\tfrac{1}{2}\sin x`, r`\cos\tfrac{x}{2}`],
@@ -124,6 +138,7 @@ export const CURVES: Curve[] = [
   },
   {
     id: 'c-oneminuscos',
+    familyId: 'half',
     fn: (x) => 1 - Math.cos(x),
     answer: r`1 - \cos x`,
     traps: [r`1 + \cos x`, r`2\sin^2 x`, r`\cos x - 1`],

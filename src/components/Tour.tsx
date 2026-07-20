@@ -31,7 +31,12 @@ const STEPS: { sel: string | null; title: string; body: string }[] = [
   {
     sel: '[data-tour="progress"]',
     title: 'Progress',
-    body: "Accuracy, streaks, and per-family mastery. Everything is stored in this browser — JSON backups live here too. That's the tour.",
+    body: 'Accuracy, streaks, and per-family mastery levels — New through Mastered. Everything is stored in this browser; JSON backups live here too.',
+  },
+  {
+    sel: '[data-tour="settings"]',
+    title: 'Settings',
+    body: "Experience level, choices per question, difficulty adaptation, and flashcard pace. Pick a level once and everything calibrates — then override anything. That's the tour.",
   },
 ]
 

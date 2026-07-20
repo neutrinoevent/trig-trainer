@@ -1,5 +1,6 @@
 import { statsFor, type ProgressState } from '../store/progress'
-import { shuffle } from '../lib/pick'
+import { inScope, shuffle } from '../lib/pick'
+import { IDENTITY_BY_ID } from './identities'
 
 const r = String.raw
 
@@ -431,8 +432,15 @@ export const VARIANTS: Variant[] = [
 export const VARIANT_BY_ID: Map<string, Variant> = new Map(VARIANTS.map((v) => [v.id, v]))
 
 /** Weight rearranged forms by mastery of the base identity, like the drill picker. */
-export function pickVariant(state: ProgressState, excludeId: string | null): Variant {
-  let pool = VARIANTS
+export function pickVariant(
+  state: ProgressState,
+  scope: string[] | null,
+  excludeId: string | null,
+): Variant {
+  let pool = VARIANTS.filter((v) =>
+    inScope(IDENTITY_BY_ID.get(v.baseId)?.familyId ?? '', scope),
+  )
+  if (pool.length === 0) pool = VARIANTS
   if (excludeId && pool.length > 1) pool = pool.filter((v) => v.id !== excludeId)
   let total = 0
   const weights = pool.map((v) => {
@@ -449,7 +457,11 @@ export function pickVariant(state: ProgressState, excludeId: string | null): Var
   return pool[pool.length - 1]
 }
 
-export function variantOptions(v: Variant): { options: string[]; correctIndex: number } {
-  const options = shuffle([v.answer, ...v.traps])
+export function variantOptions(
+  v: Variant,
+  optionCount = 4,
+): { options: string[]; correctIndex: number } {
+  const traps = shuffle([...v.traps]).slice(0, Math.max(1, optionCount - 1))
+  const options = shuffle([v.answer, ...traps])
   return { options, correctIndex: options.indexOf(v.answer) }
 }

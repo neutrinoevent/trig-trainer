@@ -1,17 +1,15 @@
 import { useState } from 'react'
 import { IDENTITY_BY_ID } from '../data/identities'
-import {
-  cardQueue,
-  statsFor,
-  NEW_PER_DAY,
-  type Grade,
-  type ProgressState,
-} from '../store/progress'
+import { cardQueue, statsFor, type Grade, type ProgressState } from '../store/progress'
+import type { Settings } from '../store/settings'
+import { ScopePicker } from './ScopePicker'
 import { Tex } from './Tex'
 
 interface Props {
   progress: ProgressState
-  scope: string | null
+  settings: Settings
+  scope: string[] | null
+  onScope: (scope: string[] | null) => void
   onGrade: (id: string, grade: Grade) => void
 }
 
@@ -19,22 +17,25 @@ function goodInterval(days: number, ease: number): number {
   return days < 1 ? 1 : Math.max(days + 1, Math.round(days * ease))
 }
 
-export function Cards({ progress, scope, onGrade }: Props) {
+export function Cards({ progress, settings, scope, onScope, onGrade }: Props) {
   const [revealed, setRevealed] = useState(false)
 
-  const queue = cardQueue(progress, scope)
+  const queue = cardQueue(progress, scope, settings.newPerDay)
   const currentId = queue.due[0] ?? queue.fresh[0] ?? null
   const identity = currentId ? IDENTITY_BY_ID.get(currentId) : undefined
 
   if (!identity) {
     return (
-      <div className="card empty-state">
-        <p className="empty-title">All caught up.</p>
-        <p className="muted">
-          No cards are due{scope ? ' in this family' : ''} and today&rsquo;s{' '}
-          {NEW_PER_DAY} new cards are done. Reviews return as they come due — or switch to Drill
-          for open-ended practice.
-        </p>
+      <div>
+        <ScopePicker scope={scope} onChange={onScope} />
+        <div className="card empty-state">
+          <p className="empty-title">All caught up.</p>
+          <p className="muted">
+            No cards are due{scope ? ' in this batch' : ''} and today&rsquo;s{' '}
+            {settings.newPerDay} new cards are done. Reviews return as they come due — or switch
+            to Drill for open-ended practice. The daily pace is adjustable in Settings.
+          </p>
+        </div>
       </div>
     )
   }
@@ -42,7 +43,8 @@ export function Cards({ progress, scope, onGrade }: Props) {
   const stats = statsFor(progress, identity.id)
   const isNew = stats.due === null
   const goodDays = goodInterval(stats.intervalDays, stats.ease)
-  const easyDays = stats.intervalDays < 1 ? 3 : Math.max(goodDays + 1, Math.round(stats.intervalDays * stats.ease * 1.4))
+  const easyDays =
+    stats.intervalDays < 1 ? 3 : Math.max(goodDays + 1, Math.round(stats.intervalDays * stats.ease * 1.4))
 
   const grade = (g: Grade) => {
     onGrade(identity.id, g)
@@ -51,6 +53,7 @@ export function Cards({ progress, scope, onGrade }: Props) {
 
   return (
     <div>
+      <ScopePicker scope={scope} onChange={onScope} />
       <div className="mode-bar">
         <span className="meta-note">
           due {queue.due.length} · new today {queue.fresh.length}

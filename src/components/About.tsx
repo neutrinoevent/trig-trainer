@@ -18,6 +18,13 @@ export function About() {
           board — all feeding one adaptive schedule: drills favor what you miss, flashcards
           space what you know.
         </p>
+        <p>
+          The design leans on the unglamorous learning-science results: retrieval practice with
+          spacing tuned for roughly 85–90% success, interleaving with the option to
+          block-practice a chosen batch, worked examples and small answer sets that fade as
+          mastery grows (the same scaffolding that helps a novice slows an expert), and
+          criterion mastery tiers rather than raw percentages.
+        </p>
       </div>
 
       <div className="card">

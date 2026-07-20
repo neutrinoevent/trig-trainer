@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { CURVES, type Curve } from '../data/curves'
-import { shuffle } from '../lib/pick'
+import { inScope, shuffle } from '../lib/pick'
 import { QuizCard } from './QuizCard'
 
 interface Props {
+  scope: string[] | null
   onAnswer: (id: string, correct: boolean) => void
 }
 
@@ -71,16 +72,17 @@ interface Served {
   correctIndex: number
 }
 
-function serve(excludeId: string | null): Served {
-  let pool = CURVES
+function serve(scope: string[] | null, excludeId: string | null): Served {
+  let pool = CURVES.filter((c) => inScope(c.familyId, scope))
+  if (pool.length === 0) pool = CURVES
   if (excludeId && pool.length > 1) pool = pool.filter((c) => c.id !== excludeId)
   const curve = pool[Math.floor(Math.random() * pool.length)]
   const options = shuffle([curve.answer, ...curve.traps])
   return { curve, options, correctIndex: options.indexOf(curve.answer) }
 }
 
-export function Graphs({ onAnswer }: Props) {
-  const [q, setQ] = useState<Served>(() => serve(null))
+export function Graphs({ scope, onAnswer }: Props) {
+  const [q, setQ] = useState<Served>(() => serve(scope, null))
 
   return (
     <div>
@@ -98,7 +100,7 @@ export function Graphs({ onAnswer }: Props) {
         onAnswer={(correct) => {
           if (q.curve.baseId) onAnswer(q.curve.baseId, correct)
         }}
-        onNext={() => setQ(serve(q.curve.id))}
+        onNext={() => setQ(serve(scope, q.curve.id))}
       />
     </div>
   )

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import type { ProgressState } from '../store/progress'
+import type { Settings } from '../store/settings'
+import { ScopePicker } from './ScopePicker'
 import { Rearrange } from './Rearrange'
 import { Graphs } from './Graphs'
 import { CircleQuiz } from './CircleQuiz'
@@ -16,10 +18,13 @@ const MODES: { id: Mode; label: string }[] = [
 
 interface Props {
   progress: ProgressState
+  settings: Settings
+  scope: string[] | null
+  onScope: (scope: string[] | null) => void
   onAnswer: (id: string, correct: boolean) => void
 }
 
-export function Challenge({ progress, onAnswer }: Props) {
+export function Challenge({ progress, settings, scope, onScope, onAnswer }: Props) {
   const [mode, setMode] = useState<Mode>('rearrange')
 
   return (
@@ -35,10 +40,17 @@ export function Challenge({ progress, onAnswer }: Props) {
           </button>
         ))}
       </div>
-      {mode === 'rearrange' ? <Rearrange progress={progress} onAnswer={onAnswer} /> : null}
-      {mode === 'graphs' ? <Graphs onAnswer={onAnswer} /> : null}
-      {mode === 'circle' ? <CircleQuiz onAnswer={onAnswer} /> : null}
-      {mode === 'match' ? <MatchBoard onAnswer={onAnswer} /> : null}
+      {mode !== 'circle' ? <ScopePicker scope={scope} onChange={onScope} /> : null}
+      {mode === 'rearrange' ? (
+        <Rearrange progress={progress} settings={settings} scope={scope} onAnswer={onAnswer} />
+      ) : null}
+      {mode === 'graphs' ? <Graphs scope={scope} onAnswer={onAnswer} /> : null}
+      {mode === 'circle' ? (
+        <CircleQuiz progress={progress} settings={settings} onAnswer={onAnswer} />
+      ) : null}
+      {mode === 'match' ? (
+        <MatchBoard progress={progress} settings={settings} scope={scope} onAnswer={onAnswer} />
+      ) : null}
     </div>
   )
 }

@@ -2,6 +2,8 @@
 
 Internalize the trig identities that matter in calculus and differential equations — Pythagorean through Weierstrass — until they are reflex.
 
+Serves beginners and experts alike: a one-time placement sets experience-level defaults, and everything is individually configurable — choices per question (fixed or mastery-scaled 2→4), accuracy-band difficulty adaptation, worked-example introductions for new identities, and flashcard pacing. Practice anywhere is scopeable to batches of interest: curated tracks (Trig basics, Calc I, Integration toolkit, ODE prep) or any hand-picked set of families. Mastery is tracked per identity in criterion tiers (New → Learning → Familiar → Proficient → Mastered), and a coach line suggests the next best action.
+
 132 identities in 22 families, grouped by role:
 
 - **Foundations** — Pythagorean, reciprocal & quotient, even/odd, cofunction & shifts, special values
@@ -17,9 +19,10 @@ Internalize the trig identities that matter in calculus and differential equatio
   - *Rearrange* — 53 known identities served factored, divided through, read right-to-left, or evaluated at concrete angles (cos π/12, triangle back-substitution, …).
   - *Graphs* — name the plotted curve from amplitude, period, poles, and asymptotes.
   - *Unit circle* — evaluate sin/cos/tan of an angle drawn on the circle, across all four quadrants.
-  - *Match* — pair left sides with right sides on a 6-pair board.
-- **Cards** — spaced-repetition flashcards (SM-2 style). A few new cards a day plus whatever is due. Drill misses pull a card's next review forward.
-- **Progress** — accuracy, streaks, per-family mastery, and JSON backup/restore.
+  - *Match* — pair left sides with right sides on a 3/4/6-pair board; novice boards draw on familiar material with an optional study-first phase, expert boards hunt weak and unseen identities.
+- **Cards** — spaced-repetition flashcards (SM-2 style). A configurable number of new cards a day plus whatever is due. Drill misses pull a card's next review forward.
+- **Progress** — accuracy, streaks, per-family mastery tiers, and JSON backup/restore.
+- **Settings** — experience level presets plus individual overrides for all of the above.
 
 Local-first: no server, no accounts. Progress lives in the browser's localStorage.
 

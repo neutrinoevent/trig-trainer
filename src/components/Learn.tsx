@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { FAMILIES, GROUPS, FAMILY_BY_ID } from '../data/identities'
+import { familyTier, tierFor, TIER_LABEL } from '../lib/mastery'
 import { statsFor, type ProgressState } from '../store/progress'
 import { Tex } from './Tex'
 
@@ -19,6 +20,7 @@ function familyMastery(progress: ProgressState, familyId: string): number {
 export function Learn({ progress, onDrillFamily }: Props) {
   const [selectedId, setSelectedId] = useState(FAMILIES[0].id)
   const family = FAMILY_BY_ID.get(selectedId) ?? FAMILIES[0]
+  const tier = familyTier(progress, family)
 
   return (
     <div className="learn">
@@ -47,21 +49,33 @@ export function Learn({ progress, onDrillFamily }: Props) {
 
       <div className="learn-body card">
         <div className="learn-head">
-          <h2 className="section-title">{family.name}</h2>
+          <h2 className="section-title">
+            {family.name} <span className={`tier-chip tier-${tier}`}>{TIER_LABEL[tier]}</span>
+          </h2>
           <button className="btn" onClick={() => onDrillFamily(family.id)}>
             Drill this family →
           </button>
         </div>
         <p className="learn-blurb">{family.blurb}</p>
         <ul className="identity-list">
-          {family.identities.map((ident) => (
-            <li key={ident.id} className="identity-row">
-              <div className="identity-tex">
-                <Tex tex={`${ident.prompt} \\;=\\; ${ident.answer}`} />
-              </div>
-              {ident.note ? <div className="identity-note muted">{ident.note}</div> : null}
-            </li>
-          ))}
+          {family.identities.map((ident) => {
+            const idTier = tierFor(statsFor(progress, ident.id))
+            return (
+              <li key={ident.id} className="identity-row">
+                <div className="identity-line">
+                  <span
+                    className={`tier-dot tier-${idTier}`}
+                    title={TIER_LABEL[idTier]}
+                    aria-label={TIER_LABEL[idTier]}
+                  />
+                  <div className="identity-tex">
+                    <Tex tex={`${ident.prompt} \\;=\\; ${ident.answer}`} />
+                  </div>
+                </div>
+                {ident.note ? <div className="identity-note muted">{ident.note}</div> : null}
+              </li>
+            )
+          })}
         </ul>
       </div>
     </div>
