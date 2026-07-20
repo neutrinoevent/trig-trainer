@@ -912,6 +912,150 @@ export const FAMILIES: Family[] = [
       },
     ],
   },
+  {
+    id: 'strategy',
+    name: 'First moves',
+    group: 'Calculus',
+    blurb:
+      'Recognition under pressure: given the integral or equation, name the identity or substitution that cracks it. Knowing the identities is half the game — knowing which one to reach for is the other half. This is the family the rest of the app exists for.',
+    identities: [
+      {
+        id: 'fm-evensq',
+        prompt: r`\int \sin^2 x\,dx\ \text{— standard move}`,
+        answer: r`\text{power-reduce: } \sin^2 x = \tfrac{1 - \cos 2x}{2}`,
+        traps: [
+          r`u = \sin x`,
+          r`\sin^2 x = 1 - \cos^2 x`,
+          r`x = \sin\theta`,
+        ],
+        note: 'Even powers of sin or cos never yield to u-substitution — reduce the power first.',
+      },
+      {
+        id: 'fm-oddchain',
+        prompt: r`\int \sin^5 x\cos x\,dx\ \text{— standard move}`,
+        answer: r`u = \sin x,\ du = \cos x\,dx`,
+        traps: [
+          r`u = \cos x,\ du = -\sin x\,dx`,
+          r`\text{power-reduce } \sin^5 x`,
+          r`\text{parts with } u = \sin^5 x`,
+        ],
+        note: 'The lone cos x is exactly the du you need. Spot the derivative-of-the-inside before anything fancier.',
+      },
+      {
+        id: 'fm-oddpeel',
+        prompt: r`\int \sin^3 x\,dx\ \text{— standard move}`,
+        answer: r`\text{peel one: } \sin^3 x = (1 - \cos^2 x)\sin x,\ \text{then } u = \cos x`,
+        traps: [
+          r`u = \sin x,\ du = \cos x\,dx`,
+          r`x = \sin\theta`,
+          r`\sin^3 x = \tfrac{1 - \cos 3x}{2}`,
+        ],
+        note: 'Odd power: keep one factor as the du, convert the rest with Pythagoras.',
+      },
+      {
+        id: 'fm-mixed-even',
+        prompt: r`\int \sin^2 x\cos^2 x\,dx\ \text{— standard move}`,
+        answer: r`\sin^2 x\cos^2 x = \tfrac{1 - \cos 4x}{8}`,
+        traps: [
+          r`u = \sin x`,
+          r`u = \sin x\cos x`,
+          r`\sin^2 x\cos^2 x = \tfrac{1 - \cos 2x}{4}`,
+        ],
+      },
+      {
+        id: 'fm-tansec',
+        prompt: r`\int \tan^2 x\sec^2 x\,dx\ \text{— standard move}`,
+        answer: r`u = \tan x,\ du = \sec^2 x\,dx`,
+        traps: [
+          r`u = \sec x,\ du = \sec x\tan x\,dx`,
+          r`x = \tan\theta`,
+          r`\text{power-reduce}`,
+        ],
+        note: 'Even power of sec available: shave off sec² as du and everything left converts to tan.',
+      },
+      {
+        id: 'fm-secodd',
+        prompt: r`\int \sec^3 x\,dx\ \text{— standard move}`,
+        answer: r`\text{parts: } u = \sec x,\ dv = \sec^2 x\,dx`,
+        traps: [
+          r`u = \tan x,\ du = \sec^2 x\,dx`,
+          r`\sec^3 x = \sec x(1 - \tan^2 x)`,
+          r`\text{power-reduce}`,
+        ],
+        note: 'Odd power of sec with no tan: parts, then the ∫sec³ that reappears gets moved to the left side.',
+      },
+      {
+        id: 'fm-rad-sin',
+        prompt: r`\int \sqrt{9 - x^2}\,dx\ \text{— substitution}`,
+        answer: r`x = 3\sin\theta`,
+        traps: [r`x = 3\tan\theta`, r`x = 3\sec\theta`, r`u = 9 - x^2`],
+        note: 'u = 9 − x² fails: du = −2x dx and there is no x outside the root.',
+      },
+      {
+        id: 'fm-rad-tan',
+        prompt: r`\int \frac{dx}{(x^2 + 4)^{3/2}}\ \text{— substitution}`,
+        answer: r`x = 2\tan\theta`,
+        traps: [r`x = 2\sin\theta`, r`x = 2\sec\theta`, r`\text{partial fractions}`],
+      },
+      {
+        id: 'fm-rad-sec',
+        prompt: r`\int \frac{\sqrt{x^2 - 25}}{x}\,dx\ \text{— substitution}`,
+        answer: r`x = 5\sec\theta`,
+        traps: [r`x = 5\sin\theta`, r`x = 5\tan\theta`, r`u = x^2 - 25`],
+      },
+      {
+        id: 'fm-table',
+        prompt: r`\int \frac{dx}{16 + x^2}\ \text{— fastest route}`,
+        answer: r`\text{standard form: } \tfrac{1}{4}\arctan\tfrac{x}{4} + C`,
+        traps: [
+          r`\tfrac{1}{16}\arctan\tfrac{x}{16} + C`,
+          r`\arctan\tfrac{x}{4} + C`,
+          r`\ln(16 + x^2) + C`,
+        ],
+        note: 'Recognize the a² + x² shape before reaching for a substitution — a = 4, and the 1/a comes along.',
+      },
+      {
+        id: 'fm-prodfreq',
+        prompt: r`\int \sin 5x\cos 3x\,dx\ \text{— standard move}`,
+        answer: r`\text{product-to-sum: } \tfrac{1}{2}\left[\sin 8x + \sin 2x\right]`,
+        traps: [
+          r`u = \sin 5x`,
+          r`\tfrac{1}{2}\left[\sin 8x - \sin 2x\right]`,
+          r`u = \cos 3x`,
+        ],
+        note: 'Different frequencies: u-substitution can never line up the du. Product-to-sum splits it instantly.',
+      },
+      {
+        id: 'fm-rational-trig',
+        prompt: r`\int \frac{dx}{3 + 2\cos x}\ \text{— standard move}`,
+        answer: r`t = \tan\tfrac{x}{2}\ \text{(Weierstrass)}`,
+        traps: [r`u = \cos x`, r`x = 3\tan\theta`, r`\text{integration by parts}`],
+        note: 'Rational in sin/cos with nothing to cancel: the universal substitution turns it into a rational function of t.',
+      },
+      {
+        id: 'fm-ode-osc',
+        prompt: r`y'' + 9y = 0\ \text{— general solution}`,
+        answer: r`y = C_1\cos 3x + C_2\sin 3x`,
+        traps: [
+          r`y = C_1 e^{3x} + C_2 e^{-3x}`,
+          r`y = C_1\cos 9x + C_2\sin 9x`,
+          r`y = (C_1 + C_2 x)\cos 3x`,
+        ],
+        note: 'Characteristic roots ±3i: the frequency is the square root of the coefficient.',
+      },
+      {
+        id: 'fm-ode-hyp',
+        prompt: r`y'' - 4y = 0\ \text{— general solution}`,
+        answer: r`y = C_1 e^{2x} + C_2 e^{-2x}`,
+        traps: [
+          r`y = C_1\cos 2x + C_2\sin 2x`,
+          r`y = C_1 e^{4x} + C_2 e^{-4x}`,
+          r`y = (C_1 + C_2 x)e^{2x}`,
+        ],
+        note: 'Real roots ±2. Equivalently C₁cosh 2x + C₂sinh 2x — same space, hyperbolic basis.',
+      },
+    ],
+  },
 ]
 
 export const GROUPS: GroupName[] = ['Foundations', 'Angle algebra', 'Calculus', 'Beyond']

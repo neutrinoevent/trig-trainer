@@ -62,6 +62,31 @@ describe('app shell', () => {
     clickButton('Good')
     expect(document.querySelector('.card-answer')).toBeNull()
 
+    // Challenge: rearranged forms answer and record against the base identity
+    clickButton('Challenge')
+    const attemptsBefore = JSON.parse(
+      localStorage.getItem('trig-trainer-progress-v1')!,
+    ).totalAttempts
+    const rearranged = [...document.querySelectorAll<HTMLButtonElement>('.option')]
+    expect(rearranged.length).toBe(4)
+    act(() => rearranged[0].click())
+    expect(
+      JSON.parse(localStorage.getItem('trig-trainer-progress-v1')!).totalAttempts,
+    ).toBe(attemptsBefore + 1)
+
+    // Graphs and Unit circle render their figures; Match lays out 12 tiles
+    clickButton('Graphs')
+    expect(document.querySelector('.curve-plot')).toBeTruthy()
+    clickButton('Unit circle')
+    expect(document.querySelector('.circle-figure')).toBeTruthy()
+    clickButton('Match')
+    expect(document.querySelectorAll('.match-tile').length).toBe(12)
+
+    // About: attribution present
+    clickButton('About')
+    expect(document.body.textContent).toContain('Alexander Nichols')
+    expect(document.body.textContent).toContain('Old Dominion University')
+
     // Progress: stats reflect the answers above
     clickButton('Progress')
     expect(document.querySelectorAll('.stat-tile').length).toBe(6)

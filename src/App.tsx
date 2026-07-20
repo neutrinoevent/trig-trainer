@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { About } from './components/About'
 import { Cards } from './components/Cards'
+import { Challenge } from './components/Challenge'
 import { Drill } from './components/Drill'
 import { Learn } from './components/Learn'
 import { ProgressView } from './components/ProgressView'
@@ -15,7 +17,7 @@ import {
   type ProgressState,
 } from './store/progress'
 
-type View = 'learn' | 'drill' | 'cards' | 'progress'
+type View = 'learn' | 'drill' | 'challenge' | 'cards' | 'progress' | 'about'
 type Theme = 'light' | 'dark' | null
 
 const THEME_KEY = 'trig-trainer-theme'
@@ -40,8 +42,10 @@ function tourPending(): boolean {
 const VIEWS: { id: View; label: string }[] = [
   { id: 'learn', label: 'Learn' },
   { id: 'drill', label: 'Drill' },
+  { id: 'challenge', label: 'Challenge' },
   { id: 'cards', label: 'Cards' },
   { id: 'progress', label: 'Progress' },
+  { id: 'about', label: 'About' },
 ]
 
 export default function App() {
@@ -131,7 +135,9 @@ export default function App() {
         {view === 'drill' ? (
           <Drill progress={progress} scope={scope} onScope={setScope} onAnswer={onAnswer} />
         ) : null}
+        {view === 'challenge' ? <Challenge progress={progress} onAnswer={onAnswer} /> : null}
         {view === 'cards' ? <Cards progress={progress} scope={scope} onGrade={onGrade} /> : null}
+        {view === 'about' ? <About /> : null}
         {view === 'progress' ? (
           <ProgressView
             progress={progress}

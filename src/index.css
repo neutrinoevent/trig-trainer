@@ -653,6 +653,156 @@ body {
   flex-wrap: wrap;
 }
 
+/* ---- challenge ---- */
+
+.mode-blurb {
+  margin: 0 0 14px;
+  font-size: 13px;
+}
+
+.quiz-visual {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 6px;
+}
+
+.curve-plot {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+}
+
+.circle-figure {
+  width: min(240px, 70vw);
+  height: auto;
+}
+
+.plot-axis {
+  stroke: var(--muted);
+  stroke-width: 1;
+}
+
+.plot-grid {
+  stroke: var(--hairline);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.plot-label {
+  fill: var(--muted);
+  font-size: 11px;
+  font-family: system-ui, sans-serif;
+}
+
+.plot-curve {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+}
+
+.circle-ring {
+  stroke: var(--ink-2);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.circle-radius {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.circle-arc {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  fill: none;
+  opacity: 0.7;
+}
+
+.circle-drop {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+
+.circle-point {
+  fill: var(--accent);
+}
+
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.match-tile {
+  font: inherit;
+  color: var(--ink);
+  background: var(--page);
+  border: 1px solid var(--border);
+  padding: 14px 10px;
+  min-height: 64px;
+  cursor: pointer;
+  overflow-x: auto;
+}
+
+.match-tile:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.match-selected,
+.match-selected:hover:not(:disabled) {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+
+.match-wrong {
+  border-color: var(--bad);
+  background: var(--bad-bg);
+}
+
+.match-done {
+  border-color: var(--good);
+  background: var(--good-bg);
+  opacity: 0.6;
+  cursor: default;
+}
+
+.match-actions {
+  align-items: center;
+}
+
+.match-summary {
+  flex: 1;
+  margin-top: 0;
+}
+
+/* ---- about ---- */
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.about p {
+  margin: 0 0 10px;
+  color: var(--ink-2);
+}
+
+.about p:last-child {
+  margin-bottom: 0;
+}
+
+.about a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.about a:hover {
+  text-decoration: underline;
+}
+
 /* ---- guided tour ---- */
 
 .tour-root {
@@ -740,6 +890,10 @@ body {
 
   .options {
     grid-template-columns: 1fr;
+  }
+
+  .match-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

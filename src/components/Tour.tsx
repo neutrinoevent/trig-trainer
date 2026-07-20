@@ -19,6 +19,11 @@ const STEPS: { sel: string | null; title: string; body: string }[] = [
     body: 'Rapid-fire multiple choice. The wrong options are the classic sign errors, and questions adapt: identities you miss come back more often. Keys 1–4 answer, Enter advances.',
   },
   {
+    sel: '[data-tour="challenge"]',
+    title: 'Challenge',
+    body: 'Think-on-your-feet modes: identities served rearranged and factored, curves to name from their graphs, a unit-circle quiz across all four quadrants, and a matching board. Same progress tracking underneath.',
+  },
+  {
     sel: '[data-tour="cards"]',
     title: 'Cards',
     body: 'Spaced-repetition flashcards. A few new cards a day plus whatever is due; right answers push a card further out, misses bring it back.',

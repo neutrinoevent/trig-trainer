@@ -1,7 +1,7 @@
 import { ALL_IDENTITIES, type FlatIdentity } from '../data/identities'
 import { statsFor, type ProgressState } from '../store/progress'
 
-const norm = (tex: string) => tex.replace(/\s|\\,|\\;|\\!/g, '')
+export const norm = (tex: string) => tex.replace(/\s|\\,|\\;|\\!/g, '')
 
 /** All correct answers per prompt, so equivalent forms never appear as distractors. */
 const answersByPrompt = new Map<string, Set<string>>()
